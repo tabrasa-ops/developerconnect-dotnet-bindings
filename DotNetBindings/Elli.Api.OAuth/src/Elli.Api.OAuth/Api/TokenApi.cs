@@ -69,7 +69,7 @@ namespace Elli.Api.OAuth.Api
         /// <param name="code">For auth code grant (optional)</param>
         /// <param name="session">For grant_type &#x3D; urn:elli:params:oauth:grant-type:encompass-bearer (optional)</param>
         /// <returns>TokenIssuance</returns>
-        TokenIssuance GenerateToken (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null);
+        TokenIssuance GenerateToken (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null, string instanceId = null);
 
         /// <summary>
         /// 
@@ -86,7 +86,7 @@ namespace Elli.Api.OAuth.Api
         /// <param name="code">For auth code grant (optional)</param>
         /// <param name="session">For grant_type &#x3D; urn:elli:params:oauth:grant-type:encompass-bearer (optional)</param>
         /// <returns>ApiResponse of TokenIssuance</returns>
-        ApiResponse<TokenIssuance> GenerateTokenWithHttpInfo (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null);
+        ApiResponse<TokenIssuance> GenerateTokenWithHttpInfo (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null, string instanceId = null);
         #endregion Synchronous Operations
         #region Asynchronous Operations
         /// <summary>
@@ -104,7 +104,7 @@ namespace Elli.Api.OAuth.Api
         /// <param name="code">For auth code grant (optional)</param>
         /// <param name="session">For grant_type &#x3D; urn:elli:params:oauth:grant-type:encompass-bearer (optional)</param>
         /// <returns>Task of TokenIssuance</returns>
-        System.Threading.Tasks.Task<TokenIssuance> GenerateTokenAsync (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null);
+        System.Threading.Tasks.Task<TokenIssuance> GenerateTokenAsync (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null, string instanceId = null);
 
         /// <summary>
         /// 
@@ -121,7 +121,7 @@ namespace Elli.Api.OAuth.Api
         /// <param name="code">For auth code grant (optional)</param>
         /// <param name="session">For grant_type &#x3D; urn:elli:params:oauth:grant-type:encompass-bearer (optional)</param>
         /// <returns>Task of ApiResponse (TokenIssuance)</returns>
-        System.Threading.Tasks.Task<ApiResponse<TokenIssuance>> GenerateTokenAsyncWithHttpInfo (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null);
+        System.Threading.Tasks.Task<ApiResponse<TokenIssuance>> GenerateTokenAsyncWithHttpInfo (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null, string instanceId = null);
         #endregion Asynchronous Operations
     }
 
@@ -246,9 +246,9 @@ namespace Elli.Api.OAuth.Api
         /// <param name="code">For auth code grant (optional)</param>
         /// <param name="session">For grant_type &#x3D; urn:elli:params:oauth:grant-type:encompass-bearer (optional)</param>
         /// <returns>TokenIssuance</returns>
-        public TokenIssuance GenerateToken (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null)
+        public TokenIssuance GenerateToken (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null, string instanceId = null)
         {
-             ApiResponse<TokenIssuance> localVarResponse = GenerateTokenWithHttpInfo(grantType, username, password, scope, redirectUri, code, session);
+             ApiResponse<TokenIssuance> localVarResponse = GenerateTokenWithHttpInfo(grantType, username, password, scope, redirectUri, code, session, instanceId);
              return localVarResponse.Data;
         }
 
@@ -264,7 +264,7 @@ namespace Elli.Api.OAuth.Api
         /// <param name="code">For auth code grant (optional)</param>
         /// <param name="session">For grant_type &#x3D; urn:elli:params:oauth:grant-type:encompass-bearer (optional)</param>
         /// <returns>ApiResponse of TokenIssuance</returns>
-        public ApiResponse< TokenIssuance > GenerateTokenWithHttpInfo (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null)
+        public ApiResponse< TokenIssuance > GenerateTokenWithHttpInfo (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null, string instanceId = null)
         {
             // verify the required parameter 'grantType' is set
             if (grantType == null)
@@ -298,14 +298,22 @@ namespace Elli.Api.OAuth.Api
             if (redirectUri != null) localVarFormParams.Add("redirect_uri", Configuration.ApiClient.ParameterToString(redirectUri)); // form parameter
             if (code != null) localVarFormParams.Add("code", Configuration.ApiClient.ParameterToString(code)); // form parameter
             if (session != null) localVarFormParams.Add("session", Configuration.ApiClient.ParameterToString(session)); // form parameter
+            if (instanceId != null) localVarFormParams.Add("instance_id", Configuration.ApiClient.ParameterToString(instanceId)); // form parameter
 
             // authentication (ClientCredential) required
             // http basic authentication required
             if (!String.IsNullOrEmpty(Configuration.Username) || !String.IsNullOrEmpty(Configuration.Password))
             {
-                localVarHeaderParams["Authorization"] = "Basic " + ApiClient.Base64Encode(Configuration.Username + ":" + Configuration.Password);
+                if (grantType.Equals("client_credentials"))
+                {
+                    localVarFormParams.Add("client_id", Configuration.ApiClient.ParameterToString(Configuration.Username)); // form parameter
+                    localVarFormParams.Add("client_secret", Configuration.ApiClient.ParameterToString(Configuration.Password)); // form parameter
+                }
+                else
+                {
+                    localVarHeaderParams["Authorization"] = "Basic " + ApiClient.Base64Encode(Configuration.Username + ":" + Configuration.Password);
+                }
             }
-
 
             // make the HTTP request
             IRestResponse localVarResponse = (IRestResponse) Configuration.ApiClient.CallApi(localVarPath,
@@ -337,9 +345,9 @@ namespace Elli.Api.OAuth.Api
         /// <param name="code">For auth code grant (optional)</param>
         /// <param name="session">For grant_type &#x3D; urn:elli:params:oauth:grant-type:encompass-bearer (optional)</param>
         /// <returns>Task of TokenIssuance</returns>
-        public async System.Threading.Tasks.Task<TokenIssuance> GenerateTokenAsync (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null)
+        public async System.Threading.Tasks.Task<TokenIssuance> GenerateTokenAsync (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null, string instanceId = null)
         {
-             ApiResponse<TokenIssuance> localVarResponse = await GenerateTokenAsyncWithHttpInfo(grantType, username, password, scope, redirectUri, code, session);
+             ApiResponse<TokenIssuance> localVarResponse = await GenerateTokenAsyncWithHttpInfo(grantType, username, password, scope, redirectUri, code, session, instanceId);
              return localVarResponse.Data;
 
         }
@@ -356,7 +364,7 @@ namespace Elli.Api.OAuth.Api
         /// <param name="code">For auth code grant (optional)</param>
         /// <param name="session">For grant_type &#x3D; urn:elli:params:oauth:grant-type:encompass-bearer (optional)</param>
         /// <returns>Task of ApiResponse (TokenIssuance)</returns>
-        public async System.Threading.Tasks.Task<ApiResponse<TokenIssuance>> GenerateTokenAsyncWithHttpInfo (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null)
+        public async System.Threading.Tasks.Task<ApiResponse<TokenIssuance>> GenerateTokenAsyncWithHttpInfo (string grantType, string username = null, string password = null, string scope = null, string redirectUri = null, string code = null, string session = null, string instanceId = null)
         {
             // verify the required parameter 'grantType' is set
             if (grantType == null)
@@ -390,12 +398,21 @@ namespace Elli.Api.OAuth.Api
             if (redirectUri != null) localVarFormParams.Add("redirect_uri", Configuration.ApiClient.ParameterToString(redirectUri)); // form parameter
             if (code != null) localVarFormParams.Add("code", Configuration.ApiClient.ParameterToString(code)); // form parameter
             if (session != null) localVarFormParams.Add("session", Configuration.ApiClient.ParameterToString(session)); // form parameter
+            if (instanceId != null) localVarFormParams.Add("instance_id", Configuration.ApiClient.ParameterToString(instanceId)); // form parameter
 
             // authentication (ClientCredential) required
             // http basic authentication required
             if (!String.IsNullOrEmpty(Configuration.Username) || !String.IsNullOrEmpty(Configuration.Password))
             {
-                localVarHeaderParams["Authorization"] = "Basic " + ApiClient.Base64Encode(Configuration.Username + ":" + Configuration.Password);
+                if (grantType.Equals("client_credentials"))
+                {
+                    localVarFormParams.Add("client_id", Configuration.ApiClient.ParameterToString(Configuration.Username)); // form parameter
+                    localVarFormParams.Add("client_secret", Configuration.ApiClient.ParameterToString(Configuration.Password)); // form parameter
+                }
+                else
+                {
+                    localVarHeaderParams["Authorization"] = "Basic " + ApiClient.Base64Encode(Configuration.Username + ":" + Configuration.Password);
+                }
             }
 
             // make the HTTP request

@@ -70,6 +70,20 @@ namespace Elli.Api.Base
             return accessToken;
         }
 
+        public static AccessToken GetAccessToken(string grantType, string redirectUrl = null, string apiClientId = null, string clientSecret = null, string instanceId = null)
+        {
+            var accessToken = new AccessToken();
+            accessToken.ApiClientId = apiClientId;
+            accessToken.ClientSecret = clientSecret;
+            accessToken.RedirectUrl = redirectUrl;
+            var tokenClient = ApiClientProvider.GetApiClient<TokenApi>();
+            tokenClient.Configuration.Username = accessToken.ApiClientId;
+            tokenClient.Configuration.Password = accessToken.ClientSecret;
+            var resp = tokenClient.GenerateToken(grantType, null, null, Scope, accessToken.RedirectUrl, null, null, instanceId);
+            accessToken.Token = resp?.AccessToken;
+            return accessToken;
+        }
+
         public void Revoke()
         {
             var revocationApiClient = ApiClientProvider.GetApiClient<RevocationApi>();
